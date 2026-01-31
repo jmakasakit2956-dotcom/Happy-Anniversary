@@ -66,34 +66,34 @@
         ];
 
         // --- VERTICAL CONFIGURATION ---
-        const SPACING_UNIT = 45; // Spacing between cards (vh)
-        const START_OFFSET = 80; // Start after Hero section (vh)
+        const SPACING_UNIT = 40; 
+        const START_OFFSET = 80; 
 
-        // Original links
+        // Updated links
         const RAW_LINKS = [
             "https://drive.google.com/uc?export=view&id=1EmPKV4C3lFtNsXSiTUKj22moc9kDzH56",
             "https://drive.google.com/uc?export=view&id=1ARQgb-UHf4xnqVJRul_CYCigyFFE66Qs",
             "https://drive.google.com/uc?export=view&id=1Dei2hYS1_EUNxSqf1SWYLcWFWnjNWaxy",
             "https://drive.google.com/uc?export=view&id=1aILgtIo8bgB8Rx942Z4YTQhHOGrm0dKc",
-            "https://drive.google.com/uc?export=view&id=1BBiFdUt7j2hL_2Z4j70f8pLkr-DjBV81",
             "https://drive.google.com/uc?export=view&id=12dK5Qnd_4w1clRG5-7ymIrH81Oo24XO_",
             "https://drive.google.com/uc?export=view&id=1K_IvWSEJ8SyAxzbh0hfVmaKUreyWDAyG",
             "https://drive.google.com/uc?export=view&id=1ojOO2qhWj-cUE4cxUyJlhFk0y-qaK4Dm",
+            "https://drive.google.com/uc?export=view&id=1BBiFdUt7j2hL_2Z4j70f8pLkr-DjBV81",
             "https://drive.google.com/uc?export=view&id=1IHu4kBqIcehrqUmJeqN_T5YmInqWhABP",
-            "https://drive.google.com/uc?export=view&id=1dfaIibbbLVfUcEIUut029c2mp2McQ4rw",
-            "https://drive.google.com/uc?export=view&id=1A8Omo1WvacIjRBMz_UZLYsTuytEVdX9y",
-            "https://drive.google.com/uc?export=view&id=1u3KQF_muV27evClQL8bcQdLaTj-cWpiv",
             "https://drive.google.com/uc?export=view&id=1f3j-MmOpQNx7okoh0evOXGH6Llf9WJU-",
             "https://drive.google.com/uc?export=view&id=1_j_KjIQZCraCwS4mZ7tzCorhznR7rwUk",
             "https://drive.google.com/uc?export=view&id=1VaSFZNEkJejMytvDeg_WHXk4jdeM5DQd",
-            "https://drive.google.com/uc?export=view&id=1Kvs8Pw7QFRIB4C-itXJiilZ6Bu4gH5bz",
             "https://drive.google.com/uc?export=view&id=1iAfzJXSjvtu9eaTXwan7Qdw9gd3KWEDj",
             "https://drive.google.com/uc?export=view&id=1JcwCWvx0rgdIT-NubNV1xvaj48puGg-O",
             "https://drive.google.com/uc?export=view&id=1U6UH2EQ5n75sQ9jR1BhNfAebx3Ao3cbT",
+            "https://drive.google.com/uc?export=view&id=1dfaIibbbLVfUcEIUut029c2mp2McQ4rw",
+            "https://drive.google.com/uc?export=view&id=1A8Omo1WvacIjRBMz_UZLYsTuytEVdX9y",
+            "https://drive.google.com/uc?export=view&id=1u3KQF_muV27evClQL8bcQdLaTj-cWpiv",
+            "https://drive.google.com/uc?export=view&id=1Kvs8Pw7QFRIB4C-itXJiilZ6Bu4gH5bz",
             "https://drive.google.com/uc?export=view&id=1uhWOJDu-A_knwK3m-_-ruhduuAko_8mY",
-            "https://drive.google.com/uc?export=view&id=1BGnuBbxqVMwZ0BC8FBoQ_nwOgdOvYRr_",
             "https://drive.google.com/uc?export=view&id=1rmvmob1cX7NbK8MwZgN3sRUhSThzRmfB",
-            "https://drive.google.com/uc?export=view&id=1SQdtg9RK2pG812UFTtJqalibR2FedBdq"
+            "https://drive.google.com/uc?export=view&id=1SQdtg9RK2pG812UFTtJqalibR2FedBdq",
+            "https://drive.google.com/uc?export=view&id=1BGnuBbxqVMwZ0BC8FBoQ_nwOgdOvYRr_"
         ];
 
         const getReliableDriveLink = (url) => {
@@ -121,7 +121,7 @@
             };
         });
 
-        // Add 100vh padding at bottom to ensure scrolling finishes
+        // Add padding
         const TOTAL_HEIGHT = START_OFFSET + (MEMORIES.length * SPACING_UNIT) + 100; 
 
         /* --- DECORATIVE COMPONENTS --- */
@@ -146,8 +146,6 @@
                 </svg>
                 <div className="absolute top-[-20%] left-[-20%] w-[80vw] h-[80vw] bg-pink-50 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 animate-pulse" />
                 <div className="absolute bottom-[-20%] right-[-20%] w-[80vw] h-[80vw] bg-yellow-50 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 animate-pulse" />
-                
-                {/* Removed white border vignette */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_70%,rgba(120,80,60,0.03)_100%)]" />
             </div>
         );
@@ -155,9 +153,27 @@
         /* --- INTERACTIVE COMPONENTS --- */
 
         const VintageCard = ({ memory, onClick, isMobile }) => {
-            // FIX: STRICT CENTER FOR MOBILE
-            // If mobile: '50%' (Center). If Desktop: '25%' (Left col) or '58%' (Right col - kept as requested)
-            const xPos = isMobile ? '50%' : (memory.isLeft ? '25%' : '58%');
+            // FIX FOR MOBILE: Strict Centering using left:0, right:0, margin:auto
+            // DESKTOP: Use the percentage offsets (Left: 15%, Right: 58%)
+            
+            const cardStyle = isMobile ? {
+                top: `${memory.yPos}vh`,
+                left: 0,
+                right: 0,
+                margin: '0 auto', // Force center
+                transform: `rotate(${memory.rotation}deg)`, // No translation needed on mobile
+                width: '70vw',
+                maxWidth: '350px',
+                zIndex: 20
+            } : {
+                top: `${memory.yPos}vh`,
+                left: memory.isLeft ? '15%' : '58%',
+                transform: `translate(-50%, 0) rotate(${memory.rotation}deg)`,
+                width: '18vw',
+                maxWidth: '300px',
+                zIndex: 20
+            };
+
             const [imgError, setImgError] = useState(false);
             
             return (
@@ -169,15 +185,7 @@
                     whileHover={{ scale: 1.05, zIndex: 50 }}
                     whileTap={{ scale: 0.98 }}
                     className="absolute cursor-pointer group"
-                    style={{ 
-                        top: `${memory.yPos}vh`, 
-                        left: xPos,
-                        // FIX: Ensure centering transform is always active
-                        transform: `translate(-50%, 0) rotate(${memory.rotation}deg)`, 
-                        width: isMobile ? '80vw' : '18vw', // Mobile cards are wider for better visibility
-                        maxWidth: '350px',
-                        zIndex: 20
-                    }}
+                    style={cardStyle}
                 >
                     <div className="bg-[#fffefb] p-3 pb-4 shadow-[2px_4px_15px_rgba(0,0,0,0.1)] border border-[#e3dacd] transition-all duration-300 group-hover:shadow-[5px_20px_40px_rgba(0,0,0,0.2)] flex flex-col gap-3">
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
@@ -254,7 +262,7 @@
                             />
                         </motion.div>
 
-                        {/* 2. Letter Card (Slides Up & Top Z-index) */}
+                        {/* 2. Letter Card */}
                         <motion.div 
                             initial={{ y: 0, scale: 0.9, zIndex: 15 }}
                             animate={
@@ -360,8 +368,8 @@
                 let lastY = 0;
 
                 MEMORIES.forEach((m, i) => {
-                    // Mobile: Always 50% (Center). Desktop: 25% (Left) or 58% (Right)
-                    const xTarget = isMobile ? 50 : (m.isLeft ? 25 : 58);
+                    // Mobile: Always 50% (Center). Desktop: 15% (Left) or 58% (Right)
+                    const xTarget = isMobile ? 50 : (m.isLeft ? 15 : 58);
                     const yTarget = m.pinY; 
                     lastY = yTarget;
 
@@ -370,7 +378,7 @@
 
                     if (i > 0) {
                         const prevMem = MEMORIES[i-1];
-                        prevX = isMobile ? 50 : (prevMem.isLeft ? 25 : 58);
+                        prevX = isMobile ? 50 : (prevMem.isLeft ? 15 : 58);
                         prevY = prevMem.pinY;
                     }
 
@@ -387,7 +395,7 @@
 
                 // Extend string past the last memory to the very bottom
                 const threadEndY = TOTAL_HEIGHT; 
-                const lastX = isMobile ? 50 : (MEMORIES[MEMORIES.length-1].isLeft ? 25 : 58);
+                const lastX = isMobile ? 50 : (MEMORIES[MEMORIES.length-1].isLeft ? 15 : 58);
                 
                 d += `C ${lastX} ${lastY + 10}, 50 ${lastY + 10}, 50 ${threadEndY} `;
                 

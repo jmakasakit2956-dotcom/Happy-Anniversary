@@ -66,30 +66,30 @@
         ];
 
         // --- VERTICAL CONFIGURATION ---
-        const SPACING_UNIT = 40; 
+        const SPACING_UNIT = 45; 
         const START_OFFSET = 80; 
 
-        // Updated links
+        // Images
         const RAW_LINKS = [
             "https://drive.google.com/uc?export=view&id=1EmPKV4C3lFtNsXSiTUKj22moc9kDzH56",
             "https://drive.google.com/uc?export=view&id=1ARQgb-UHf4xnqVJRul_CYCigyFFE66Qs",
             "https://drive.google.com/uc?export=view&id=1Dei2hYS1_EUNxSqf1SWYLcWFWnjNWaxy",
             "https://drive.google.com/uc?export=view&id=1aILgtIo8bgB8Rx942Z4YTQhHOGrm0dKc",
+            "https://drive.google.com/uc?export=view&id=1BBiFdUt7j2hL_2Z4j70f8pLkr-DjBV81",
             "https://drive.google.com/uc?export=view&id=12dK5Qnd_4w1clRG5-7ymIrH81Oo24XO_",
             "https://drive.google.com/uc?export=view&id=1K_IvWSEJ8SyAxzbh0hfVmaKUreyWDAyG",
             "https://drive.google.com/uc?export=view&id=1ojOO2qhWj-cUE4cxUyJlhFk0y-qaK4Dm",
-            "https://drive.google.com/uc?export=view&id=1BBiFdUt7j2hL_2Z4j70f8pLkr-DjBV81",
             "https://drive.google.com/uc?export=view&id=1IHu4kBqIcehrqUmJeqN_T5YmInqWhABP",
-            "https://drive.google.com/uc?export=view&id=1f3j-MmOpQNx7okoh0evOXGH6Llf9WJU-",
-            "https://drive.google.com/uc?export=view&id=1_j_KjIQZCraCwS4mZ7tzCorhznR7rwUk",
-            "https://drive.google.com/uc?export=view&id=1VaSFZNEkJejMytvDeg_WHXk4jdeM5DQd",
-            "https://drive.google.com/uc?export=view&id=1iAfzJXSjvtu9eaTXwan7Qdw9gd3KWEDj",
-            "https://drive.google.com/uc?export=view&id=1JcwCWvx0rgdIT-NubNV1xvaj48puGg-O",
-            "https://drive.google.com/uc?export=view&id=1U6UH2EQ5n75sQ9jR1BhNfAebx3Ao3cbT",
             "https://drive.google.com/uc?export=view&id=1dfaIibbbLVfUcEIUut029c2mp2McQ4rw",
             "https://drive.google.com/uc?export=view&id=1A8Omo1WvacIjRBMz_UZLYsTuytEVdX9y",
             "https://drive.google.com/uc?export=view&id=1u3KQF_muV27evClQL8bcQdLaTj-cWpiv",
+            "https://drive.google.com/uc?export=view&id=1f3j-MmOpQNx7okoh0evOXGH6Llf9WJU-",
+            "https://drive.google.com/uc?export=view&id=1_j_KjIQZCraCwS4mZ7tzCorhznR7rwUk",
+            "https://drive.google.com/uc?export=view&id=1VaSFZNEkJejMytvDeg_WHXk4jdeM5DQd",
             "https://drive.google.com/uc?export=view&id=1Kvs8Pw7QFRIB4C-itXJiilZ6Bu4gH5bz",
+            "https://drive.google.com/uc?export=view&id=1iAfzJXSjvtu9eaTXwan7Qdw9gd3KWEDj",
+            "https://drive.google.com/uc?export=view&id=1JcwCWvx0rgdIT-NubNV1xvaj48puGg-O",
+            "https://drive.google.com/uc?export=view&id=1U6UH2EQ5n75sQ9jR1BhNfAebx3Ao3cbT",
             "https://drive.google.com/uc?export=view&id=1uhWOJDu-A_knwK3m-_-ruhduuAko_8mY",
             "https://drive.google.com/uc?export=view&id=1rmvmob1cX7NbK8MwZgN3sRUhSThzRmfB",
             "https://drive.google.com/uc?export=view&id=1SQdtg9RK2pG812UFTtJqalibR2FedBdq",
@@ -121,7 +121,7 @@
             };
         });
 
-        // Add padding
+        // Added extra height (80vh) to the bottom so the thread can extend past the text
         const TOTAL_HEIGHT = START_OFFSET + (MEMORIES.length * SPACING_UNIT) + 100; 
 
         /* --- DECORATIVE COMPONENTS --- */
@@ -153,26 +153,17 @@
         /* --- INTERACTIVE COMPONENTS --- */
 
         const VintageCard = ({ memory, onClick, isMobile }) => {
-            // FIX FOR MOBILE: Strict Centering using left:0, right:0, margin:auto
-            // DESKTOP: Use the percentage offsets (Left: 15%, Right: 58%)
+            // FIX: MOBILE ZIG-ZAG LAYOUT
+            // Mobile: Left=5%, Right=55% (Fits two columns logic on small screen)
+            // Desktop: Left=15%, Right=58%
+            const xPos = isMobile 
+                ? (memory.isLeft ? '5%' : '55%') 
+                : (memory.isLeft ? '15%' : '58%');
             
-            const cardStyle = isMobile ? {
-                top: `${memory.yPos}vh`,
-                left: 0,
-                right: 0,
-                margin: '0 auto', // Force center
-                transform: `rotate(${memory.rotation}deg)`, // No translation needed on mobile
-                width: '70vw',
-                maxWidth: '350px',
-                zIndex: 20
-            } : {
-                top: `${memory.yPos}vh`,
-                left: memory.isLeft ? '15%' : '58%',
-                transform: `translate(-50%, 0) rotate(${memory.rotation}deg)`,
-                width: '18vw',
-                maxWidth: '300px',
-                zIndex: 20
-            };
+            // FIX: RESIZED CARDS FOR MOBILE
+            // Width: 40vw (Small enough to fit side-by-side with padding)
+            const cardWidth = isMobile ? '40vw' : '18vw';
+            const maxCardWidth = isMobile ? '160px' : '300px';
 
             const [imgError, setImgError] = useState(false);
             
@@ -185,12 +176,19 @@
                     whileHover={{ scale: 1.05, zIndex: 50 }}
                     whileTap={{ scale: 0.98 }}
                     className="absolute cursor-pointer group"
-                    style={cardStyle}
+                    style={{ 
+                        top: `${memory.yPos}vh`, 
+                        left: xPos,
+                        transform: `rotate(${memory.rotation}deg)`, 
+                        width: cardWidth,
+                        maxWidth: maxCardWidth,
+                        zIndex: 20
+                    }}
                 >
-                    <div className="bg-[#fffefb] p-3 pb-4 shadow-[2px_4px_15px_rgba(0,0,0,0.1)] border border-[#e3dacd] transition-all duration-300 group-hover:shadow-[5px_20px_40px_rgba(0,0,0,0.2)] flex flex-col gap-3">
+                    <div className="bg-[#fffefb] p-2 md:p-3 pb-4 shadow-[2px_4px_15px_rgba(0,0,0,0.1)] border border-[#e3dacd] transition-all duration-300 group-hover:shadow-[5px_20px_40px_rgba(0,0,0,0.2)] flex flex-col gap-2 md:gap-3">
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
-                            <div className="w-8 h-8 bg-[#8a1c1c] rounded-full flex items-center justify-center shadow-md border-2 border-white/50">
-                               <Heart size={14} fill="#FDFBF7" className="text-[#FDFBF7]" />
+                            <div className="w-6 h-6 md:w-8 md:h-8 bg-[#8a1c1c] rounded-full flex items-center justify-center shadow-md border-2 border-white/50">
+                               <Heart size={isMobile ? 12 : 14} fill="#FDFBF7" className="text-[#FDFBF7]" />
                             </div>
                         </div>
                         <div className="aspect-[4/5] w-full overflow-hidden bg-[#2b2622] relative flex items-center justify-center">
@@ -212,15 +210,15 @@
                             )}
                         </div>
                         <div className="text-center pt-2">
-                            <h3 className="font-['Cinzel_Decorative'] text-lg md:text-xl text-[#2b2622] leading-tight mb-2">
+                            <h3 className="font-['Cinzel_Decorative'] text-xs md:text-xl text-[#2b2622] leading-tight mb-1">
                                 {memory.caption}
                             </h3>
                             <div className="flex items-center justify-center gap-2 opacity-60">
-                                 <div className="h-[1px] w-4 bg-[#8a1c1c]" />
-                                 <p className="font-['Courier_Prime'] text-[9px] text-[#2b2622] tracking-[0.2em] uppercase">
+                                 <div className="h-[1px] w-2 md:w-4 bg-[#8a1c1c]" />
+                                 <p className="font-['Courier_Prime'] text-[8px] md:text-[9px] text-[#2b2622] tracking-[0.2em] uppercase">
                                     {memory.month}
                                  </p>
-                                 <div className="h-[1px] w-4 bg-[#8a1c1c]" />
+                                 <div className="h-[1px] w-2 md:w-4 bg-[#8a1c1c]" />
                             </div>
                         </div>
                     </div>
@@ -250,14 +248,14 @@
                         className="relative w-full max-w-xl aspect-[3/2] flex items-center justify-center perspective-1000"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* 1. Envelope Back (Pink) */}
+                        {/* 1. Envelope Back (DUSTY PINK) */}
                         <motion.div 
                             initial={{ opacity: 1, y: 0 }}
                             animate={phase === 'reading' ? { opacity: 0, y: 100 } : { opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
-                            className="absolute inset-0 bg-[#E3B6B6] rounded-sm shadow-2xl flex items-end justify-center overflow-visible z-10"
+                            className="absolute inset-0 bg-[#d4a5a5] rounded-sm shadow-2xl flex items-end justify-center overflow-visible z-10"
                         >
-                            <div className="absolute top-0 w-[95%] h-[90%] bg-[#F2D4D4] rounded-b-sm opacity-80" 
+                            <div className="absolute top-0 w-[95%] h-[90%] bg-[#f7e7ce] rounded-b-sm opacity-80" 
                                  style={{ clipPath: "polygon(0 0, 100% 0, 50% 50%)" }} 
                             />
                         </motion.div>
@@ -293,21 +291,21 @@
                            </div>
                         </motion.div>
 
-                        {/* 3. Envelope Front (Pink) */}
+                        {/* 3. Envelope Front (LIGHT PINK) */}
                         <motion.div 
                             animate={phase === 'reading' ? { y: 200, opacity: 0 } : { y: 0, opacity: 1 }}
                             transition={{ duration: 0.8 }}
                             className="absolute bottom-0 w-full h-full z-30 pointer-events-none"
                         >
-                             <div className="w-full h-full bg-[#EBC3C3] shadow-inner" 
+                             <div className="w-full h-full bg-[#e0b0b0] shadow-inner" 
                                   style={{ 
                                       clipPath: "polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%)", 
-                                      backgroundImage: "linear-gradient(to top right, #E3B6B6, #EBC3C3)" 
+                                      backgroundImage: "linear-gradient(to top right, #d4a5a5, #e0b0b0)" 
                                   }}
                              />
                         </motion.div>
 
-                        {/* 4. Envelope Flap (Pink) */}
+                        {/* 4. Envelope Flap (LIGHT PINK) */}
                         <motion.div 
                            initial={{ rotateX: 0 }}
                            animate={{ 
@@ -319,8 +317,8 @@
                            className="absolute top-0 left-0 w-full h-[55%] origin-top shadow-md"
                            style={{ 
                              clipPath: "polygon(0 0, 100% 0, 50% 100%)", 
-                             backgroundColor: "#EBC3C3", 
-                             backgroundImage: "linear-gradient(to bottom, #EBC3C3, #E3B6B6)"
+                             backgroundColor: "#e0b0b0", 
+                             backgroundImage: "linear-gradient(to bottom, #e0b0b0, #d4a5a5)"
                            }}
                         >
                            <motion.div animate={{ opacity: phase === 'closed' ? 1 : 0 }} className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#8a1c1c] rounded-full border-2 border-[#f7e7ce] shadow-lg flex items-center justify-center">
@@ -368,8 +366,11 @@
                 let lastY = 0;
 
                 MEMORIES.forEach((m, i) => {
-                    // Mobile: Always 50% (Center). Desktop: 15% (Left) or 58% (Right)
-                    const xTarget = isMobile ? 50 : (m.isLeft ? 15 : 58);
+                    // Mobile: Left=25%, Right=75%. Desktop: Left=15%, Right=58%
+                    const xTarget = isMobile 
+                        ? (m.isLeft ? 25 : 75) 
+                        : (m.isLeft ? 15 : 58);
+                        
                     const yTarget = m.pinY; 
                     lastY = yTarget;
 
@@ -378,7 +379,9 @@
 
                     if (i > 0) {
                         const prevMem = MEMORIES[i-1];
-                        prevX = isMobile ? 50 : (prevMem.isLeft ? 15 : 58);
+                        prevX = isMobile 
+                            ? (prevMem.isLeft ? 25 : 75) 
+                            : (prevMem.isLeft ? 15 : 58);
                         prevY = prevMem.pinY;
                     }
 
@@ -395,7 +398,9 @@
 
                 // Extend string past the last memory to the very bottom
                 const threadEndY = TOTAL_HEIGHT; 
-                const lastX = isMobile ? 50 : (MEMORIES[MEMORIES.length-1].isLeft ? 15 : 58);
+                const lastX = isMobile 
+                    ? (MEMORIES[MEMORIES.length-1].isLeft ? 25 : 75)
+                    : (MEMORIES[MEMORIES.length-1].isLeft ? 15 : 58);
                 
                 d += `C ${lastX} ${lastY + 10}, 50 ${lastY + 10}, 50 ${threadEndY} `;
                 
@@ -460,7 +465,7 @@
                              {/* Hanging Needle at End */}
                              <div 
                                className="absolute left-1/2 -ml-[1px] w-[2px] h-12 bg-gray-400 shadow-sm z-30"
-                               style={{ top: `${endPointY}vh` }} 
+                               style={{ top: `${endPointY - 10}vh` }} 
                              >
                                 <div className="w-[3px] h-4 bg-[#e5e5e5] absolute -top-1 left-1/2 -translate-x-1/2 rounded-sm border border-gray-400" /> 
                              </div>

@@ -1,0 +1,466 @@
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
+import { Volume2, VolumeX, X, Heart, ImageOff } from 'lucide-react';
+
+/* --- ASSETS & CONSTANTS --- */
+const FONTS = `
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,700;1,600&family=Reenie+Beanie&display=swap');
+`;
+
+const QUOTES = [
+  "It started with a fist bump, but ended up being my forever.",
+  "You are my sun, my moon, and all my stars.",
+  "If I know what love is, it is because of you.",
+  "I look at you and see the rest of my life in front of my eyes.",
+  "To the world you may be one person, but to me you are the world.",
+  "I swear I couldn't love you more than I do right now, and yet I know I will tomorrow.",
+  "You are the finest, loveliest, tenderest, and most beautiful person I have ever known.",
+  "My heart is and always will be yours.",
+  "Every love story is beautiful, but ours is my favorite.",
+  "In all the world, there is no heart for me like yours.",
+  "I love you not only for what you are, but for what I am when I am with you.",
+  "You are my today and all of my tomorrows.",
+  "Whatever our souls are made of, yours and mine are the same.",
+  "I choose you. And I'll choose you over and over and over.",
+  "Thinking of you keeps me awake. Dreaming of you keeps me asleep. Being with you keeps me alive.",
+  "Your love is the best part of my day.",
+  "You are the piece of the puzzle I didn't know was missing.",
+  "Forever is a long time, but I wouldn't mind spending it by your side.",
+  "You are my heart, my life, my one and only thought.",
+  "I saw that you were perfect, and so I loved you. Then I saw that you were not perfect and I loved you even more.",
+  "Walking with you through life is my favorite journey.",
+  "You make my heart smile.",
+  "Two years down, a lifetime to go."
+];
+
+// --- VERTICAL CONFIGURATION ---
+const SPACING_UNIT = 40; 
+const START_OFFSET = 80; 
+
+// Original links provided
+const RAW_LINKS = [
+  "https://drive.google.com/uc?export=view&id=1EmPKV4C3lFtNsXSiTUKj22moc9kDzH56",
+  "https://drive.google.com/uc?export=view&id=1ARQgb-UHf4xnqVJRul_CYCigyFFE66Qs",
+  "https://drive.google.com/uc?export=view&id=1Dei2hYS1_EUNxSqf1SWYLcWFWnjNWaxy",
+  "https://drive.google.com/uc?export=view&id=1aILgtIo8bgB8Rx942Z4YTQhHOGrm0dKc",
+  "https://drive.google.com/uc?export=view&id=1BBiFdUt7j2hL_2Z4j70f8pLkr-DjBV81",
+  "https://drive.google.com/uc?export=view&id=12dK5Qnd_4w1clRG5-7ymIrH81Oo24XO_",
+  "https://drive.google.com/uc?export=view&id=1K_IvWSEJ8SyAxzbh0hfVmaKUreyWDAyG",
+  "https://drive.google.com/uc?export=view&id=1ojOO2qhWj-cUE4cxUyJlhFk0y-qaK4Dm",
+  "https://drive.google.com/uc?export=view&id=1IHu4kBqIcehrqUmJeqN_T5YmInqWhABP",
+  "https://drive.google.com/uc?export=view&id=1dfaIibbbLVfUcEIUut029c2mp2McQ4rw",
+  "https://drive.google.com/uc?export=view&id=1A8Omo1WvacIjRBMz_UZLYsTuytEVdX9y",
+  "https://drive.google.com/uc?export=view&id=1u3KQF_muV27evClQL8bcQdLaTj-cWpiv",
+  "https://drive.google.com/uc?export=view&id=1f3j-MmOpQNx7okoh0evOXGH6Llf9WJU-",
+  "https://drive.google.com/uc?export=view&id=1_j_KjIQZCraCwS4mZ7tzCorhznR7rwUk",
+  "https://drive.google.com/uc?export=view&id=1VaSFZNEkJejMytvDeg_WHXk4jdeM5DQd",
+  "https://drive.google.com/uc?export=view&id=1Kvs8Pw7QFRIB4C-itXJiilZ6Bu4gH5bz",
+  "https://drive.google.com/uc?export=view&id=1iAfzJXSjvtu9eaTXwan7Qdw9gd3KWEDj",
+  "https://drive.google.com/uc?export=view&id=1JcwCWvx0rgdIT-NubNV1xvaj48puGg-O",
+  "https://drive.google.com/uc?export=view&id=1U6UH2EQ5n75sQ9jR1BhNfAebx3Ao3cbT",
+  "https://drive.google.com/uc?export=view&id=1uhWOJDu-A_knwK3m-_-ruhduuAko_8mY",
+  "https://drive.google.com/uc?export=view&id=1BGnuBbxqVMwZ0BC8FBoQ_nwOgdOvYRr_",
+  "https://drive.google.com/uc?export=view&id=1rmvmob1cX7NbK8MwZgN3sRUhSThzRmfB",
+  "https://drive.google.com/uc?export=view&id=1SQdtg9RK2pG812UFTtJqalibR2FedBdq"
+];
+
+// Helper to convert to a more reliable thumbnail link
+const getReliableDriveLink = (url) => {
+  const match = url.match(/id=([a-zA-Z0-9_-]+)/);
+  if (match && match[1]) {
+    // sz=w1000 requests a large thumbnail which bypasses some download limits
+    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+  }
+  return url;
+};
+
+const MEMORIES = RAW_LINKS.map((url, i) => {
+  const isLeft = i % 2 === 0;
+  const yPos = START_OFFSET + (i * SPACING_UNIT);
+  
+  return {
+    id: i,
+    month: `Memory ${i + 1}`,
+    image: getReliableDriveLink(url), 
+    caption: i === 0 ? "The Beginning" : i === 11 ? "One Year" : `Memory ${i + 1}`,
+    quote: QUOTES[i % QUOTES.length],
+    isLeft: isLeft,
+    yPos: yPos,
+    pinY: yPos - 2, 
+    rotation: ((i * 13) % 10) - 5 
+  };
+});
+
+// Added extra height (80vh) to the bottom so the thread can extend past the text
+const TOTAL_HEIGHT = START_OFFSET + (MEMORIES.length * SPACING_UNIT) + 80; 
+
+/* --- DECORATIVE COMPONENTS --- */
+
+const CrestSVG = ({ className, style }) => (
+  <svg viewBox="0 0 100 100" className={className} style={style}>
+    <path fill="currentColor" d="M50,20 C50,20 30,30 30,50 C30,70 50,90 50,90 C50,90 70,70 70,50 C70,30 50,20 50,20 Z" />
+    <path fill="none" stroke="currentColor" strokeWidth="1" d="M50,15 L50,20 M30,50 L25,50 M70,50 L75,50 M50,90 L50,95" />
+    <text x="50" y="62" textAnchor="middle" fontSize="24" fontFamily="serif" fill="currentColor">II</text>
+  </svg>
+);
+
+const VintageBackground = () => (
+  <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#fafaf5]">
+    {/* 1. Base Gradient */}
+    <div className="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#fff9f2] to-[#ede3d8]" />
+
+    {/* 2. Paper Texture */}
+    <svg className="absolute inset-0 w-full h-full opacity-30 mix-blend-multiply">
+      <filter id="cleanGrain">
+        <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
+        <feColorMatrix type="saturate" values="0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#cleanGrain)" />
+    </svg>
+    
+    {/* 3. Soft Pastel Glows */}
+    <div className="absolute top-[-20%] left-[-20%] w-[80vw] h-[80vw] bg-pink-50 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 animate-pulse" />
+    <div className="absolute bottom-[-20%] right-[-20%] w-[80vw] h-[80vw] bg-yellow-50 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 animate-pulse" />
+    
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_60%,rgba(120,80,60,0.05)_100%)]" />
+  </div>
+);
+
+/* --- INTERACTIVE COMPONENTS --- */
+
+const VintageCard = ({ memory, onClick, isMobile }) => {
+  // Horizontal positioning: 
+  // LEFT COLUMN: Changed to 15% (Moved further left)
+  // RIGHT COLUMN: Kept at 58% (Stayed put)
+  const xPos = isMobile ? '50%' : (memory.isLeft ? '15%' : '58%');
+  const [imgError, setImgError] = useState(false);
+  
+  return (
+    <motion.div 
+      onClick={() => onClick(memory)}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10%" }}
+      whileHover={{ scale: 1.05, zIndex: 50 }}
+      whileTap={{ scale: 0.98 }}
+      className="absolute cursor-pointer group"
+      style={{ 
+        top: `${memory.yPos}vh`, 
+        left: xPos,
+        transform: `translate(-50%, 0) rotate(${memory.rotation}deg)`, 
+        width: isMobile ? '70vw' : '18vw', 
+        maxWidth: '300px',
+        zIndex: 20
+      }}
+    >
+      <div className="bg-[#fffefb] p-3 pb-4 shadow-[2px_4px_15px_rgba(0,0,0,0.1)] border border-[#e3dacd] transition-all duration-300 group-hover:shadow-[5px_20px_40px_rgba(0,0,0,0.2)] flex flex-col gap-3">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
+            <div className="w-8 h-8 bg-[#8a1c1c] rounded-full flex items-center justify-center shadow-md border-2 border-white/50">
+               <Heart size={14} fill="#FDFBF7" className="text-[#FDFBF7]" />
+            </div>
+        </div>
+        <div className="aspect-[4/5] w-full overflow-hidden bg-[#2b2622] relative flex items-center justify-center">
+          <div className="absolute inset-0 bg-[#5c4033] mix-blend-overlay opacity-10 pointer-events-none z-10" />
+          
+          {imgError ? (
+            <div className="flex flex-col items-center justify-center text-[#e3dacd] p-4 text-center">
+                <ImageOff size={32} className="mb-2 opacity-50" />
+                <span className="font-['Courier_Prime'] text-[10px] uppercase tracking-widest">Image Unavailable</span>
+            </div>
+          ) : (
+            <img 
+              src={memory.image} 
+              alt={memory.caption} 
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover filter sepia-[0.1] contrast-[1.05] brightness-[1.02] group-hover:scale-110 group-hover:sepia-0 transition-all duration-700 ease-out"
+              loading="lazy" 
+            />
+          )}
+        </div>
+        <div className="text-center pt-2">
+          <h3 className="font-['Cinzel_Decorative'] text-lg md:text-xl text-[#2b2622] leading-tight mb-2">
+            {memory.caption}
+          </h3>
+          <div className="flex items-center justify-center gap-2 opacity-60">
+             <div className="h-[1px] w-4 bg-[#8a1c1c]" />
+             <p className="font-['Courier_Prime'] text-[9px] text-[#2b2622] tracking-[0.2em] uppercase">
+                {memory.month}
+             </p>
+             <div className="h-[1px] w-4 bg-[#8a1c1c]" />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// --- ENVELOPE MODAL ---
+const EnvelopeModal = ({ memory, onClose }) => {
+  const [phase, setPhase] = useState('closed'); 
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase('opening'), 300);   
+    const t2 = setTimeout(() => setPhase('extracting'), 800); 
+    const t3 = setTimeout(() => setPhase('reading'), 1800);   
+
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, []);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0a0505]/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div 
+        className="relative w-full max-w-xl aspect-[3/2] flex items-center justify-center perspective-1000"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <motion.div 
+            initial={{ opacity: 1, y: 0 }}
+            animate={phase === 'reading' ? { opacity: 0, y: 100 } : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 bg-[#E3B6B6] rounded-sm shadow-2xl flex items-end justify-center overflow-visible z-10"
+        >
+            <div className="absolute top-0 w-[95%] h-[90%] bg-[#F2D4D4] rounded-b-sm opacity-80" 
+                 style={{ clipPath: "polygon(0 0, 100% 0, 50% 50%)" }} 
+            />
+        </motion.div>
+
+        <motion.div 
+          initial={{ y: 0, scale: 0.9, zIndex: 15 }}
+          animate={
+            phase === 'closed' || phase === 'opening' ? { y: 0, scale: 0.9, zIndex: 15 } :
+            phase === 'extracting' ? { y: -200, scale: 0.95, zIndex: 15 } :
+            { y: 0, scale: 1.1, zIndex: 100 } 
+          }
+          className="absolute w-[80%] h-[100%] bg-[#fffefb] shadow-2xl p-6 md:p-8 flex flex-col items-center text-center rounded-[2px]"
+          transition={{ duration: 1.2, ease: "easeInOut" }}
+        >
+           <div className="absolute inset-0 opacity-30 pointer-events-none mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]" />
+           <div className="relative z-10 w-full h-full flex flex-col items-center justify-between py-2 border-[3px] border-double border-[#8a1c1c]/10">
+               <div className="w-full text-center mt-2">
+                   <div className="font-['Courier_Prime'] text-[9px] tracking-[0.3em] uppercase text-[#8a1c1c] mb-3">From The Archives Of</div>
+                   <h2 className="font-['Cinzel_Decorative'] text-2xl md:text-3xl text-[#2b2622] uppercase tracking-wide leading-tight">{memory.caption}</h2>
+                   <div className="w-12 h-[1px] bg-[#8a1c1c]/30 mx-auto mt-4" />
+               </div>
+               <div className="flex-grow flex items-center justify-center px-4 md:px-6 overflow-y-auto">
+                   <p className="font-['Cormorant_Garamond'] text-lg md:text-xl italic leading-relaxed text-[#2b2622]">"{memory.quote}"</p>
+               </div>
+               <div className="w-full px-6 mb-2 mt-2">
+                   <div className="flex justify-end items-end">
+                       <div className="text-right">
+                           <span className="font-['Pinyon_Script'] text-2xl text-[#8a1c1c] block mb-1">Forever Yours</span>
+                       </div>
+                   </div>
+               </div>
+           </div>
+        </motion.div>
+
+        <motion.div 
+            animate={phase === 'reading' ? { y: 200, opacity: 0 } : { y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="absolute bottom-0 w-full h-full z-30 pointer-events-none"
+        >
+             <div className="w-full h-full bg-[#EBC3C3] shadow-inner" 
+                  style={{ 
+                      clipPath: "polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%)", 
+                      backgroundImage: "linear-gradient(to top right, #E3B6B6, #EBC3C3)" 
+                  }}
+             />
+        </motion.div>
+
+        <motion.div 
+           initial={{ rotateX: 0 }}
+           animate={{ 
+             rotateX: (phase === 'closed') ? 0 : 180,
+             zIndex: (phase === 'closed' || phase === 'opening') ? 40 : 1, 
+             opacity: (phase === 'reading') ? 0 : 1
+           }}
+           transition={{ duration: 0.6, ease: "easeInOut" }}
+           className="absolute top-0 left-0 w-full h-[55%] origin-top shadow-md"
+           style={{ 
+             clipPath: "polygon(0 0, 100% 0, 50% 100%)", 
+             backgroundColor: "#EBC3C3", 
+             backgroundImage: "linear-gradient(to bottom, #EBC3C3, #E3B6B6)"
+           }}
+        >
+           <motion.div animate={{ opacity: phase === 'closed' ? 1 : 0 }} className="absolute bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#8a1c1c] rounded-full border-2 border-[#f7e7ce] shadow-lg flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full border border-[#f4f1ea]/30" />
+           </motion.div>
+        </motion.div>
+
+      </div>
+      <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }} onClick={onClose} className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors z-[60]">
+          <X size={32} />
+      </motion.button>
+    </motion.div>
+  );
+};
+
+/* --- MAIN APP --- */
+
+export default function App() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedMemory, setSelectedMemory] = useState(null);
+  const audioRef = useRef(null);
+  const containerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      isPlaying ? audioRef.current.pause() : audioRef.current.play();
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const pathLength = useSpring(scrollYProgress, { stiffness: 400, damping: 90 });
+
+  // --- VERTICAL SVG PATH GENERATOR ---
+  const { pathD, endPointY } = useMemo(() => {
+    let d = `M 50 0 L 50 ${START_OFFSET - 10} `; 
+    let lastY = 0;
+
+    MEMORIES.forEach((m, i) => {
+        // Target Coordinates (Left=15%, Right=58%)
+        const xTarget = isMobile ? 50 : (m.isLeft ? 15 : 58);
+        const yTarget = m.pinY; 
+        lastY = yTarget;
+
+        let prevX = 50;
+        let prevY = START_OFFSET - 10;
+
+        if (i > 0) {
+            const prevMem = MEMORIES[i-1];
+            prevX = isMobile ? 50 : (prevMem.isLeft ? 15 : 58);
+            prevY = prevMem.pinY;
+        }
+
+        const midY = (prevY + yTarget) / 2;
+
+        d += `C ${prevX} ${midY}, ${xTarget} ${midY}, ${xTarget} ${yTarget - 2} `;
+
+        const loopSize = 1.5;
+        d += `C ${xTarget - loopSize} ${yTarget - 2 - loopSize}, ${xTarget - loopSize*2} ${yTarget}, ${xTarget} ${yTarget + 2} `;
+        d += `C ${xTarget + loopSize*2} ${yTarget}, ${xTarget + loopSize} ${yTarget - 2 - loopSize}, ${xTarget} ${yTarget - 2} `;
+    });
+
+    // Extend thread to the very bottom of the page
+    const threadEndY = TOTAL_HEIGHT; 
+    const lastX = isMobile ? 50 : (MEMORIES[MEMORIES.length-1].isLeft ? 15 : 58);
+    
+    // Curve back to center then straight down
+    d += `C ${lastX} ${lastY + 10}, 50 ${lastY + 10}, 50 ${lastY + 20} `;
+    d += `L 50 ${threadEndY}`;
+    
+    return { pathD: d, endPointY: threadEndY };
+  }, [isMobile]);
+
+  return (
+    <div ref={containerRef} className="bg-[#fafaf5] text-[#2b2622] selection:bg-[#8a1c1c] selection:text-white relative font-sans min-h-screen">
+      <style>{FONTS}</style>
+      <VintageBackground />
+
+      <motion.button 
+        whileTap={{ scale: 0.9 }}
+        onClick={toggleAudio} 
+        className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-[#2b2622] text-[#FDFBF7] flex items-center justify-center shadow-2xl border border-[#FDFBF7]/20 hover:scale-110 transition-transform"
+      >
+        {isPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
+      </motion.button>
+      <audio ref={audioRef} loop src="https://assets.mixkit.co/music/preview/mixkit-piano-reflections-2927.mp3" />
+
+      {/* MAIN SCROLL CONTAINER */}
+      <div style={{ height: `${TOTAL_HEIGHT}vh` }} className="relative w-full overflow-hidden">
+        
+        {/* 1. HERO SECTION */}
+        <section className="absolute top-0 left-0 w-full h-[80vh] flex flex-col items-center justify-center text-center z-20 px-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.5 }}>
+                <div className="inline-block border-t border-b border-[#8a1c1c] py-2 mb-6">
+                    <span className="font-['Courier_Prime'] text-xs md:text-sm tracking-[0.4em] uppercase text-[#2b2622] opacity-70">
+                        Volume II • The Anniversary
+                    </span>
+                </div>
+                <h1 className="font-['Cinzel_Decorative'] text-5xl md:text-8xl text-[#2b2622] leading-[0.9] mb-8">
+                    The Thread <br/>
+                    <span className="font-['Pinyon_Script'] text-[#8a1c1c] text-6xl md:text-9xl relative block mt-2">of us</span>
+                </h1>
+                <p className="font-['Cormorant_Garamond'] italic text-lg md:text-2xl text-[#2b2622]/80 max-w-lg mx-auto leading-relaxed">
+                    "730 days of moments stitched into eternity."
+                </p>
+            </motion.div>
+            <div className="absolute bottom-10 animate-bounce opacity-50 flex flex-col items-center">
+                <span className="font-['Courier_Prime'] text-[10px] uppercase tracking-widest text-[#8a1c1c]">Scroll to Begin</span>
+                <div className="h-8 w-[1px] bg-[#8a1c1c] mt-2 opacity-30" />
+            </div>
+        </section>
+
+        {/* 2. RED STRING LAYER */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-10">
+             <svg 
+               className="w-full h-full overflow-visible" 
+               viewBox={`0 0 100 ${TOTAL_HEIGHT}`} 
+               preserveAspectRatio="none"
+             >
+                 {/* The Red Thread */}
+                 <motion.path 
+                    d={pathD} 
+                    fill="none" 
+                    stroke="#8a1c1c" 
+                    strokeWidth={isMobile ? 0.8 : 0.4} 
+                    strokeLinecap="round"
+                    style={{ pathLength }} 
+                 />
+             </svg>
+             {/* Hanging Needle at End */}
+             <div 
+               className="absolute left-1/2 -ml-[1px] w-[2px] h-12 bg-gray-400 shadow-sm z-30"
+               style={{ top: `${endPointY - 10}vh` }} // Adjusted slightly so it hangs near end
+             >
+                <div className="w-[3px] h-4 bg-[#e5e5e5] absolute -top-1 left-1/2 -translate-x-1/2 rounded-sm border border-gray-400" /> 
+             </div>
+        </div>
+
+        {/* 3. MEMORIES */}
+        {MEMORIES.map((memory, index) => (
+            <VintageCard 
+                key={memory.id} 
+                memory={memory} 
+                onClick={setSelectedMemory}
+                isMobile={isMobile}
+            />
+        ))}
+
+        {/* 4. FOOTER */}
+        <section 
+            className="absolute w-full flex flex-col items-center justify-center z-20 text-center px-4"
+            style={{ top: `${TOTAL_HEIGHT - 35}vh`, height: '35vh' }}
+        >
+            <h2 className="font-['Cinzel_Decorative'] text-4xl md:text-6xl mb-6 text-[#2b2622]">To Be Continued...</h2>
+            <div className="w-24 h-[1px] bg-[#8a1c1c] mb-6 opacity-50" />
+            <p className="font-['Cormorant_Garamond'] italic text-2xl max-w-md text-[#2b2622]/70">
+                "Woven by fate, held together by love."
+            </p>
+        </section>
+
+      </div>
+
+      <AnimatePresence>
+        {selectedMemory && (
+          <EnvelopeModal 
+            memory={selectedMemory} 
+            onClose={() => setSelectedMemory(null)} 
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

@@ -19,6 +19,13 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            background-color: #fafaf5;
+        }
+        
+        /* Hide scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
         }
     </style>
 </head>
@@ -27,14 +34,13 @@
 
     <!-- Application Code -->
     <script type="text/babel" data-type="module">
-        // Import libraries from ESM CDN with dependency pinning to ensure single React instance
         import React, { useState, useMemo, useEffect, useRef } from "https://esm.sh/react@18.2.0";
         import ReactDOM from "https://esm.sh/react-dom@18.2.0/client";
         import { motion, useScroll, useSpring, AnimatePresence } from "https://esm.sh/framer-motion@10.16.4?deps=react@18.2.0,react-dom@18.2.0";
         import { Volume2, VolumeX, X, Heart, ImageOff } from "https://esm.sh/lucide-react@0.292.0?deps=react@18.2.0,react-dom@18.2.0";
 
         const QUOTES = [
-            "It started with a fist bump, but ended up being my forever.",
+            "It started with a hello, but ended up being my forever.",
             "You are my sun, my moon, and all my stars.",
             "If I know what love is, it is because of you.",
             "I look at you and see the rest of my life in front of my eyes.",
@@ -60,10 +66,10 @@
         ];
 
         // --- VERTICAL CONFIGURATION ---
-        const SPACING_UNIT = 40; 
-        const START_OFFSET = 80; 
+        const SPACING_UNIT = 45; // Spacing between cards (vh)
+        const START_OFFSET = 80; // Start after Hero section (vh)
 
-        // Original links provided
+        // Original links
         const RAW_LINKS = [
             "https://drive.google.com/uc?export=view&id=1EmPKV4C3lFtNsXSiTUKj22moc9kDzH56",
             "https://drive.google.com/uc?export=view&id=1ARQgb-UHf4xnqVJRul_CYCigyFFE66Qs",
@@ -90,7 +96,6 @@
             "https://drive.google.com/uc?export=view&id=1SQdtg9RK2pG812UFTtJqalibR2FedBdq"
         ];
 
-        // Helper to convert to a more reliable thumbnail link
         const getReliableDriveLink = (url) => {
             const match = url.match(/id=([a-zA-Z0-9_-]+)/);
             if (match && match[1]) {
@@ -116,8 +121,8 @@
             };
         });
 
-        // Added extra height (80vh) to the bottom so the thread can extend past the text
-        const TOTAL_HEIGHT = START_OFFSET + (MEMORIES.length * SPACING_UNIT) + 80; 
+        // Add 100vh padding at bottom to ensure scrolling finishes
+        const TOTAL_HEIGHT = START_OFFSET + (MEMORIES.length * SPACING_UNIT) + 100; 
 
         /* --- DECORATIVE COMPONENTS --- */
 
@@ -131,10 +136,7 @@
 
         const VintageBackground = () => (
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#fafaf5]">
-                {/* 1. Base Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-b from-[#ffffff] via-[#fff9f2] to-[#ede3d8]" />
-
-                {/* 2. Paper Texture */}
                 <svg className="absolute inset-0 w-full h-full opacity-30 mix-blend-multiply">
                     <filter id="cleanGrain">
                         <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch" />
@@ -142,22 +144,20 @@
                     </filter>
                     <rect width="100%" height="100%" filter="url(#cleanGrain)" />
                 </svg>
-                
-                {/* 3. Soft Pastel Glows */}
                 <div className="absolute top-[-20%] left-[-20%] w-[80vw] h-[80vw] bg-pink-50 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 animate-pulse" />
                 <div className="absolute bottom-[-20%] right-[-20%] w-[80vw] h-[80vw] bg-yellow-50 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 animate-pulse" />
                 
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_60%,rgba(120,80,60,0.05)_100%)]" />
+                {/* Removed white border vignette */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_70%,rgba(120,80,60,0.03)_100%)]" />
             </div>
         );
 
         /* --- INTERACTIVE COMPONENTS --- */
 
         const VintageCard = ({ memory, onClick, isMobile }) => {
-            // Horizontal positioning: 
-            // LEFT COLUMN: Changed to 15% (Moved further left)
-            // RIGHT COLUMN: Kept at 58% (Stayed put)
-            const xPos = isMobile ? '50%' : (memory.isLeft ? '15%' : '58%');
+            // FIX: STRICT CENTER FOR MOBILE
+            // If mobile: '50%' (Center). If Desktop: '25%' (Left col) or '58%' (Right col - kept as requested)
+            const xPos = isMobile ? '50%' : (memory.isLeft ? '25%' : '58%');
             const [imgError, setImgError] = useState(false);
             
             return (
@@ -172,9 +172,10 @@
                     style={{ 
                         top: `${memory.yPos}vh`, 
                         left: xPos,
+                        // FIX: Ensure centering transform is always active
                         transform: `translate(-50%, 0) rotate(${memory.rotation}deg)`, 
-                        width: isMobile ? '70vw' : '18vw', 
-                        maxWidth: '300px',
+                        width: isMobile ? '80vw' : '18vw', // Mobile cards are wider for better visibility
+                        maxWidth: '350px',
                         zIndex: 20
                     }}
                 >
@@ -241,6 +242,7 @@
                         className="relative w-full max-w-xl aspect-[3/2] flex items-center justify-center perspective-1000"
                         onClick={(e) => e.stopPropagation()}
                     >
+                        {/* 1. Envelope Back (Pink) */}
                         <motion.div 
                             initial={{ opacity: 1, y: 0 }}
                             animate={phase === 'reading' ? { opacity: 0, y: 100 } : { opacity: 1, y: 0 }}
@@ -252,6 +254,7 @@
                             />
                         </motion.div>
 
+                        {/* 2. Letter Card (Slides Up & Top Z-index) */}
                         <motion.div 
                             initial={{ y: 0, scale: 0.9, zIndex: 15 }}
                             animate={
@@ -282,6 +285,7 @@
                            </div>
                         </motion.div>
 
+                        {/* 3. Envelope Front (Pink) */}
                         <motion.div 
                             animate={phase === 'reading' ? { y: 200, opacity: 0 } : { y: 0, opacity: 1 }}
                             transition={{ duration: 0.8 }}
@@ -295,6 +299,7 @@
                              />
                         </motion.div>
 
+                        {/* 4. Envelope Flap (Pink) */}
                         <motion.div 
                            initial={{ rotateX: 0 }}
                            animate={{ 
@@ -349,14 +354,14 @@
             const { scrollYProgress } = useScroll({ target: containerRef });
             const pathLength = useSpring(scrollYProgress, { stiffness: 400, damping: 90 });
 
-            // --- VERTICAL SVG PATH GENERATOR ---
+            // --- RED STRING GENERATOR ---
             const { pathD, endPointY } = useMemo(() => {
                 let d = `M 50 0 L 50 ${START_OFFSET - 10} `; 
                 let lastY = 0;
 
                 MEMORIES.forEach((m, i) => {
-                    // Target Coordinates (Left=15%, Right=58%)
-                    const xTarget = isMobile ? 50 : (m.isLeft ? 15 : 58);
+                    // Mobile: Always 50% (Center). Desktop: 25% (Left) or 58% (Right)
+                    const xTarget = isMobile ? 50 : (m.isLeft ? 25 : 58);
                     const yTarget = m.pinY; 
                     lastY = yTarget;
 
@@ -365,26 +370,26 @@
 
                     if (i > 0) {
                         const prevMem = MEMORIES[i-1];
-                        prevX = isMobile ? 50 : (prevMem.isLeft ? 15 : 58);
+                        prevX = isMobile ? 50 : (prevMem.isLeft ? 25 : 58);
                         prevY = prevMem.pinY;
                     }
 
                     const midY = (prevY + yTarget) / 2;
 
+                    // Draw line to heart
                     d += `C ${prevX} ${midY}, ${xTarget} ${midY}, ${xTarget} ${yTarget - 2} `;
 
+                    // Heart Loop
                     const loopSize = 1.5;
                     d += `C ${xTarget - loopSize} ${yTarget - 2 - loopSize}, ${xTarget - loopSize*2} ${yTarget}, ${xTarget} ${yTarget + 2} `;
                     d += `C ${xTarget + loopSize*2} ${yTarget}, ${xTarget + loopSize} ${yTarget - 2 - loopSize}, ${xTarget} ${yTarget - 2} `;
                 });
 
-                // Extend thread to the very bottom of the page
+                // Extend string past the last memory to the very bottom
                 const threadEndY = TOTAL_HEIGHT; 
-                const lastX = isMobile ? 50 : (MEMORIES[MEMORIES.length-1].isLeft ? 15 : 58);
+                const lastX = isMobile ? 50 : (MEMORIES[MEMORIES.length-1].isLeft ? 25 : 58);
                 
-                // Curve back to center then straight down
-                d += `C ${lastX} ${lastY + 10}, 50 ${lastY + 10}, 50 ${lastY + 20} `;
-                d += `L 50 ${threadEndY}`;
+                d += `C ${lastX} ${lastY + 10}, 50 ${lastY + 10}, 50 ${threadEndY} `;
                 
                 return { pathD: d, endPointY: threadEndY };
             }, [isMobile]);
@@ -447,7 +452,7 @@
                              {/* Hanging Needle at End */}
                              <div 
                                className="absolute left-1/2 -ml-[1px] w-[2px] h-12 bg-gray-400 shadow-sm z-30"
-                               style={{ top: `${endPointY - 10}vh` }} // Adjusted slightly so it hangs near end
+                               style={{ top: `${endPointY}vh` }} 
                              >
                                 <div className="w-[3px] h-4 bg-[#e5e5e5] absolute -top-1 left-1/2 -translate-x-1/2 rounded-sm border border-gray-400" /> 
                              </div>
